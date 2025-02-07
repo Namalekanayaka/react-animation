@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation, useInView, useScroll } from "framer-motion";
+import { use, useEffect, useRef } from "react";
 
 const gridContainerVariants = {
   hidden: { opacity: 0 },
@@ -16,6 +17,18 @@ const gridSquareVariants = {
 };
 
 const App = () => {
+  const { scrollYProgress: completionProgress } = useScroll();
+  const mainControls = useAnimation();
+
+  useEffect(() => {
+    if (isInview) {
+      mainControls.start("visible");
+    }
+  }, [isInview]);
+
+  const containerRef = useRef(null);
+  const isInview = useInView(containerRef, { once: true });
+
   return (
     <div className="flex flex-col gap-10 overflow-x-hidden">
       <motion.section
@@ -90,7 +103,15 @@ const App = () => {
         <motion.div
           variants={gridSquareVariants}
           className="bg-slate-800 aspect-square rounded-lg justify-center flex items-center gap-10"
-        ></motion.div>
+        >
+          {/*scroll animation*/}
+          <motion.div className="w-40 aspect-square bg-gray-50/20 rounded">
+            <motion.div
+              className="w-full bg-gray-400 rounded-xl h-full origin-bottom"
+              style={{ scaleY: completionProgress }}
+            ></motion.div>
+          </motion.div>
+        </motion.div>
         <motion.div
           variants={gridSquareVariants}
           className="bg-slate-800 aspect-square rounded-lg justify-center flex items-center gap-10"
@@ -100,6 +121,37 @@ const App = () => {
           className="bg-slate-800 aspect-square rounded-lg justify-center flex items-center gap-10"
         ></motion.div>
       </motion.section>
+
+      <section className="flex flex-col gap-10 mb-10" ref={containerRef}>
+        <motion.h1
+          className="text-5xl tracking-wide text-slate-100 text-center"
+          animate={mainControls}
+          initial="hidden"
+          variants={{
+            hidden: { opacity: 0, y: 75 },
+            visible: {
+              opacity: 1,
+              y: 0,
+            },
+          }}
+          transition={{ delay: 0.3 }}
+        >
+          Just keep Scrolling
+        </motion.h1>
+
+        <p className="text-slate-100 font-thin text-4xl w-1/2 mx-auto">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. A hic, ipsam
+          rerum quibusdam cupiditate soluta dolorum voluptatem dicta earum nemo.
+          Repellat eius dignissimos quis nisi eaque rerum in reprehenderit vero?
+        </p>
+        <p className="text-slate-100 font-thin text-4xl w-1/2 mx-auto">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempore,
+          commodi optio nulla ut beatae modi amet odit provident nobis adipisci
+          consectetur assumenda cumque maiores. Excepturi blanditiis,
+          reiciendis, sunt eius tempore tenetur, natus dignissimos totam eveniet
+          vitae harum maiores minima obcaecati.
+        </p>
+      </section>
     </div>
   );
 };
